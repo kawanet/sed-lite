@@ -1,0 +1,41 @@
+{
+  "name": "sed-lite",
+  "description": "`sed` for JavaScript",
+  "version": "0.8.0",
+  "author": "Yusuke Kawasaki <u-suke@kawa.net>",
+  "contributors": [
+    "Yusuke Kawasaki <u-suke@kawa.net>"
+  ],
+  "devDependencies": {
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.13.4",
+    "mocha": "^7.1.2",
+    "typescript": "^3.8.3"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "lib/",
+    "types/"
+  ],
+  "homepage": "https://github.com/kawanet/sed-lite#readme",
+  "keywords": [
+    "replace",
+    "sed"
+  ],
+  "license": "MIT",
+  "main": "lib/sed-lite.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kawanet/sed-lite.git"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/tsc -p .",
+    "build-types": "./node_modules/.bin/tsc -p types",
+    "fixpack": "fixpack",
+    "mocha": "./node_modules/.bin/mocha -R spec test/*.test.js",
+    "test": "npm run build && npm run build-types && npm run mocha",
+    "tsc-watch": "tsc --watch"
+  },
+  "typings": "./types/sed-lite.d.ts"
+}
