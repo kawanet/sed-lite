@@ -34,4 +34,12 @@ describe(TITLE, () => {
             assert.throws(() => sed(def));
         });
     }
+
+    {
+        // without ";" delimiter
+        const def = "s/foo/bar/ s/bar/buz/";
+        it(def, () => {
+            assert.throws(() => sed(def));
+        });
+    }
 });

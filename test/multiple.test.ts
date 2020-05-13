@@ -22,6 +22,12 @@ describe(TITLE, () => {
         assert.equal(replacer("[foo][fooo]"), "[buz][baro]");
     });
 
+    it("multiple semi-colons", () => {
+        const def = `s/foo/bar/g;;;;s/bar/buz/`;
+        const replacer = sed(def);
+        assert.equal(replacer("[foo][fooo]"), "[buz][baro]");
+    });
+
     it("multiple lines", () => {
         const def = `
 s/foo/bar/g;

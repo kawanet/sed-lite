@@ -22,7 +22,7 @@ export function sed(str: string): (str: string) => string {
     const delim = str[1] || "/";
     const delimRE = delim.replace(/([^\w\/#:])/, "\\$1");
     const fieldRE = "((?:\\\\.|[^\\\\\\\\" + delimRE + "])+)"; // means /\\./ or /[^\\]/
-    const matchRE = "^s" + delimRE + fieldRE + delimRE + fieldRE + delimRE + "([^;#\\s]*)\\s*";
+    const matchRE = "^s" + delimRE + fieldRE + delimRE + fieldRE + delimRE + "([^;#\\s]*)";
 
     str = str.replace(new RegExp(matchRE), (substring: string, $1: string, $2: string, $3: string) => {
         const regexp = new RegExp($1, $3);
@@ -32,12 +32,19 @@ export function sed(str: string): (str: string) => string {
     });
 
     // invalid line
-    if (!replacer || /^[^;#]/.test(str)) {
+    if (!replacer) {
         throw new SyntaxError("Invalid: " + str);
     }
 
+    // trailing spaces and comments
+    str = str.replace(/^(\s+|#[^\r\n]*([\r\n]+|$))*/g, "");
+
     // combine next line
     if (str) {
+        if (str[0] !== ";") {
+            throw new SyntaxError("Add ';' before: " + str);
+        }
+
         const next = sed(str);
         if (next) replacer = JOIN(replacer, next);
     }
