@@ -2,6 +2,8 @@
 
 `sed` for JavaScript
 
+[![npm version](https://badge.fury.io/js/sed-lite.svg)](https://www.npmjs.com/package/sed-lite)
+
 ## SYNOPSIS
 
 ```js
