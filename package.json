@@ -16,7 +16,7 @@
     "LICENSE",
     "README.md",
     "lib/",
-    "types/"
+    "types/sed-lite.d.ts"
   ],
   "homepage": "https://github.com/kawanet/sed-lite#readme",
   "keywords": [
