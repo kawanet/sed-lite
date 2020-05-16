@@ -1,8 +1,8 @@
 # sed-lite
 
-`sed` for JavaScript
+`sed` compiler for JavaScript
 
-![Node.js CI](https://github.com/kawanet/sed-lite/workflows/Node.js%20CI/badge.svg?branch=master)
+[![Node.js CI](https://github.com/kawanet/sed-lite/workflows/Node.js%20CI/badge.svg?branch=master)](https://github.com/kawanet/sed-lite/actions/)
 [![npm version](https://badge.fury.io/js/sed-lite.svg)](https://www.npmjs.com/package/sed-lite)
 
 ## SYNOPSIS
@@ -22,6 +22,10 @@ const buz = sed("s#foo#bar#; s#bar#buz#"); // str => str.replace(/foo/, "bar").r
 
 buz("Hello, foo!"); // Hello, buz!
 ```
+
+See TypeScript declaration
+[sed-lite.d.ts](https://github.com/kawanet/sed-lite/blob/master/types/sed-lite.d.ts)
+for more detail.
 
 ## LICENSE
 

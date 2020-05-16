@@ -1,6 +1,6 @@
 {
   "name": "sed-lite",
-  "description": "`sed` for JavaScript",
+  "description": "`sed` compiler for JavaScript",
   "version": "0.8.0",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "contributors": [
