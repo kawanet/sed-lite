@@ -2,6 +2,7 @@
 
 `sed` for JavaScript
 
+![Node.js CI](https://github.com/kawanet/sed-lite/workflows/Node.js%20CI/badge.svg?branch=master)
 [![npm version](https://badge.fury.io/js/sed-lite.svg)](https://www.npmjs.com/package/sed-lite)
 
 ## SYNOPSIS
