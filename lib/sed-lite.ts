@@ -26,13 +26,13 @@ export function sed(str: string): (str: string) => string {
 
     str = str.replace(new RegExp(matchRE), (substring: string, $1: string, $2: string, $3: string) => {
         const regexp = new RegExp($1, $3);
-        const replace = $2;
+        const replace = unescape($2);
         replacer = str => str.replace(regexp, replace);
         return "";
     });
 
     // invalid line
-    if (replacer == null) {
+    if (!replacer) {
         throw new SyntaxError("Invalid: " + str);
     }
 
@@ -59,4 +59,13 @@ export function sed(str: string): (str: string) => string {
 
 function JOIN(A: Replacer, B: Replacer): Replacer {
     return str => B(A(str));
+}
+
+const esc = {b: "\b", f: "\f", n: "\n", r: "\r", t: "\t", v: "\v"} as any;
+
+function unescape(str: string) {
+    return str.replace(/\\(x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|.)/g, (match, $1) => {
+        if (match.length > 2) return String.fromCharCode(parseInt(match.substr(2), 16));
+        return esc[$1] || $1;
+    });
 }
