@@ -61,4 +61,20 @@ describe(TITLE, () => {
             assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]");
         });
     }
+
+    {
+        const def = "s/fo+//g"; // replace to empty
+        it(def, () => {
+            const replacer = sed(def);
+            assert.equal(replacer("[foo][fooo]"), "[][]");
+        });
+    }
+
+    {
+        const def = "s//_/g"; // match empty (every character)
+        it(def, () => {
+            const replacer = sed(def);
+            assert.equal(replacer("[foo]"), "_[_f_o_o_]_");
+        });
+    }
 });

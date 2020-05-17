@@ -21,7 +21,7 @@ export function sed(str: string): (str: string) => string {
 
     const delim = str[1] || "/";
     const delimRE = delim.replace(/([^\w\/#:])/, "\\$1");
-    const fieldRE = "((?:\\\\.|[^\\\\\\\\" + delimRE + "])+)"; // means /\\./ or /[^\\]/
+    const fieldRE = "((?:\\\\.|[^\\\\\\\\" + delimRE + "])*)"; // means /\\./ or /[^\\]/
     const matchRE = "^s" + delimRE + fieldRE + delimRE + fieldRE + delimRE + "([^;#\\s]*)";
 
     str = str.replace(new RegExp(matchRE), (substring: string, $1: string, $2: string, $3: string) => {
@@ -32,7 +32,7 @@ export function sed(str: string): (str: string) => string {
     });
 
     // invalid line
-    if (!replacer) {
+    if (replacer == null) {
         throw new SyntaxError("Invalid: " + str);
     }
 
