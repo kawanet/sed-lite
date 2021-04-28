@@ -2,7 +2,7 @@
 
 `sed` compiler for JavaScript
 
-[![npm](https://img.shields.io/npm/v/badges.svg)](https://www.npmjs.com/package/sed-lite)
+[![npm](https://img.shields.io/npm/v/sed-lite.svg)](https://www.npmjs.com/package/sed-lite)
 [![Node.js CI](https://github.com/kawanet/sed-lite/workflows/Node.js%20CI/badge.svg?branch=master)](https://github.com/kawanet/sed-lite/actions/)
 
 ## SYNOPSIS
@@ -26,6 +26,13 @@ buz("Hello, foo!"); // Hello, buz!
 See TypeScript declaration
 [sed-lite.d.ts](https://github.com/kawanet/sed-lite/blob/master/types/sed-lite.d.ts)
 for more detail.
+
+## LINKS
+
+- https://github.com/kawanet/sed-lite
+- https://www.npmjs.com/package/browserify-sed
+- https://www.npmjs.com/package/express-sed
+- https://www.npmjs.com/package/sed-lite
 
 ## LICENSE
 
