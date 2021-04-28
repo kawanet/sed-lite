@@ -1,21 +1,28 @@
 {
   "name": "sed-lite",
   "description": "`sed` compiler for JavaScript",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
+  "bugs": {
+    "url": "https://github.com/kawanet/sed-lite/issues"
+  },
   "contributors": [
     "Yusuke Kawasaki <u-suke@kawa.net>"
   ],
   "devDependencies": {
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^14.0.1",
-    "mocha": "^7.1.2",
-    "typescript": "^3.9.2"
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.43",
+    "browserify": "^17.0.0",
+    "mocha": "^8.3.2",
+    "terser": "^5.7.0",
+    "typescript": "^4.2.4"
   },
   "files": [
     "LICENSE",
     "README.md",
-    "lib/",
+    "browser/import.js",
+    "dist/*.js",
+    "lib/*.js",
     "types/sed-lite.d.ts"
   ],
   "homepage": "https://github.com/kawanet/sed-lite#readme",
@@ -30,7 +37,8 @@
     "url": "git+https://github.com/kawanet/sed-lite.git"
   },
   "scripts": {
-    "build": "npm run build-lib && npm run build-types",
+    "build": "npm run build-lib && npm run build-types && npm run build-browser",
+    "build-browser": "make -C browser",
     "build-lib": "./node_modules/.bin/tsc -p .",
     "build-types": "./node_modules/.bin/tsc -p types",
     "fixpack": "fixpack",

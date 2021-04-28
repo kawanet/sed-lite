@@ -1,7 +1,7 @@
 #!/usr/bin/env mocha -R spec
 
 import {strict as assert} from "assert";
-import {sed} from "../lib/sed-lite";
+import {sed} from "../";
 
 const TITLE = __filename.split("/").pop();
 
