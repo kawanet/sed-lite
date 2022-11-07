@@ -4,6 +4,7 @@
 
 [![npm](https://img.shields.io/npm/v/sed-lite.svg)](https://www.npmjs.com/package/sed-lite)
 [![Node.js CI](https://github.com/kawanet/sed-lite/workflows/Node.js%20CI/badge.svg?branch=master)](https://github.com/kawanet/sed-lite/actions/)
+[![minified size](https://img.shields.io/bundlephobia/min/sed-lite)](https://cdn.jsdelivr.net/npm/sed-lite/dist/sed-lite.min.js)
 
 ## SYNOPSIS
 
@@ -38,7 +39,7 @@ for more detail.
 
 The MIT License (MIT)
 
-Copyright (c) 2020-2021 Yusuke Kawasaki
+Copyright (c) 2020-2022 Yusuke Kawasaki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,7 +1,7 @@
 {
   "name": "sed-lite",
   "description": "`sed` compiler for JavaScript",
-  "version": "0.8.4",
+  "version": "1.0.0",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bugs": {
     "url": "https://github.com/kawanet/sed-lite/issues"
@@ -10,12 +10,12 @@
     "Yusuke Kawasaki <u-suke@kawa.net>"
   ],
   "devDependencies": {
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^14.14.43",
-    "browserify": "^17.0.0",
-    "mocha": "^8.3.2",
-    "terser": "^5.7.0",
-    "typescript": "^4.2.4"
+    "@types/mocha": "10.0.0",
+    "@types/node": "18.11.9",
+    "browserify": "17.0.0",
+    "mocha": "10.1.0",
+    "terser": "5.15.1",
+    "typescript": "4.8.4"
   },
   "files": [
     "LICENSE",
@@ -37,12 +37,12 @@
     "url": "git+https://github.com/kawanet/sed-lite.git"
   },
   "scripts": {
-    "build": "npm run build-lib && npm run build-types && npm run build-browser",
+    "build": "npm run build-lib && npm run build-browser",
     "build-browser": "make -C browser",
     "build-lib": "./node_modules/.bin/tsc -p .",
-    "build-types": "./node_modules/.bin/tsc -p types",
     "fixpack": "fixpack",
     "mocha": "./node_modules/.bin/mocha -R spec test/*.test.js",
+    "prepack": "npm run build && npm run test",
     "test": "npm run mocha",
     "tsc-watch": "tsc --watch"
   },

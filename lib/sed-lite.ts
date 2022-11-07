@@ -1,5 +1,7 @@
 // sed-lite.ts
 
+import type * as types from "../types/sed-lite";
+
 type Replacer = (str: string) => string;
 
 /**
@@ -8,7 +10,7 @@ type Replacer = (str: string) => string;
  * @throws {SyntaxError}
  */
 
-export function sed(str: string): (str: string) => string {
+export const sed: typeof types.sed = str => {
     let replacer: Replacer;
 
     if ("string" !== typeof str) str = String(str);
