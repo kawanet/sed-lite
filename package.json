@@ -37,12 +37,12 @@
     "url": "git+https://github.com/kawanet/sed-lite.git"
   },
   "scripts": {
-    "build": "npm run build-lib && npm run build-types && npm run build-browser",
+    "build": "npm run build-lib && npm run build-browser",
     "build-browser": "make -C browser",
     "build-lib": "./node_modules/.bin/tsc -p .",
-    "build-types": "./node_modules/.bin/tsc -p types",
     "fixpack": "fixpack",
     "mocha": "./node_modules/.bin/mocha -R spec test/*.test.js",
+    "prepack": "npm run build && npm run test",
     "test": "npm run mocha",
     "tsc-watch": "tsc --watch"
   },
