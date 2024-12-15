@@ -1,9 +1,9 @@
 #!/usr/bin/env mocha -R spec
 
 import {strict as assert} from "assert";
-import {sed} from "../";
+import {sed} from "../lib/sed-lite.js";
 
-const TITLE = __filename.split("/").pop();
+const TITLE = "error.test.ts";
 
 describe(TITLE, () => {
     {

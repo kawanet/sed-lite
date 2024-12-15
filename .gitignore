@@ -1,3 +1,4 @@
+*.mjs
 *.tgz
 *~
 .DS_Store
