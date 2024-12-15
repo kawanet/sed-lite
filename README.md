@@ -9,7 +9,7 @@
 ## SYNOPSIS
 
 ```js
-const {sed} = require("sed-lite");
+import {sed} from "sed-lite";
 
 const foo = sed("s/foo/FOO/"); // str => str.replace(/foo/, "FOO")
 

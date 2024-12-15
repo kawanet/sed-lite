@@ -1,16 +1,17 @@
 {
   "include": [
-    "./lib",
-    "./test"
+    "../lib",
+    "../test"
   ],
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ES2022",
     "noImplicitAny": true,
     "noImplicitReturns": false,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
-    "removeComments": false,
+    "removeComments": true,
+    "outDir": "../build/esm",
     "skipLibCheck": true,
     "strictNullChecks": false,
     "target": "ES2022",

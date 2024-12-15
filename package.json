@@ -21,12 +21,18 @@
     "terser": "5.37.0",
     "typescript": "5.7.2"
   },
+  "exports": {
+    "types": "./types/sed-lite.d.ts",
+    "import": "./esm/sed-lite.mjs",
+    "require": "./lib/sed-lite.js"
+  },
   "files": [
     "LICENSE",
     "README.md",
     "browser/import.js",
-    "dist/*.js",
-    "lib/*.js",
+    "dist/sed-lite.min.js",
+    "esm/sed-lite.mjs",
+    "lib/sed-lite.js",
     "types/sed-lite.d.ts"
   ],
   "homepage": "https://github.com/kawanet/sed-lite#readme",
@@ -41,14 +47,11 @@
     "url": "git+https://github.com/kawanet/sed-lite.git"
   },
   "scripts": {
-    "build": "npm run build-lib && npm run build-browser",
-    "build-browser": "make -C browser",
-    "build-lib": "./node_modules/.bin/tsc -p .",
+    "build": "make",
     "fixpack": "fixpack",
-    "mocha": "./node_modules/.bin/mocha -R spec test/*.test.js",
     "prepack": "npm run build && npm run test",
-    "test": "npm run mocha",
-    "tsc-watch": "tsc --watch"
+    "test": "make test"
   },
+  "type": "commonjs",
   "typings": "./types/sed-lite.d.ts"
 }
