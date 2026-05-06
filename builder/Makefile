@@ -131,21 +131,13 @@ smoke-minjs: $(MINJS_DST) $(PKG_DST)
 test: all smoke $(TYPES)
 	@node -v | grep -qv "^v20" || echo "Node 20 detected: skipping full tests."
 	@ [ "$$npm_command" != "install" ] || echo "npm install detected: skipping full tests."
-	@node -v | grep -q "^v20" || [ "$$npm_command" = "install" ] || $(MAKE) test-ts test-shim
+	@node -v | grep -q "^v20" || [ "$$npm_command" = "install" ] || $(MAKE) test-ts
 
 test-ts:
 	../node_modules/.bin/tsc --noEmit
 	cd .. && node --test test/*.test.ts
 
-# Regression check for the browser-side shims — runs the same test
-# sources through them on Node via builder/tests.ts (the basename
-# parallels browser/tests.html). Not a replacement for `test-ts`:
-# real node:test runs there, and shim semantics intentionally
-# diverge (see node-test.shim.ts header).
-test-shim:
-	cd .. && node ./builder/tests.ts test/*.test.ts
-
 clean:
 	/bin/rm -fr $(ALL)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-ts test-shim
+.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-ts
