@@ -20,13 +20,15 @@ const g = globalThis as unknown as {
 export const {describe, before, after} = g;
 
 export const it = (...args: [string, Body] | [string, Options, Body]): void => {
-    if (args.length === 3 && typeof args[1].timeout === "number") {
+    if (args.length === 3) {
         const [name, opts, fn] = args;
         g.it(name, function (this: MochaThis) {
-            this.timeout(opts.timeout!);
+            if (opts && "number" === typeof opts.timeout) {
+                this.timeout(opts.timeout);
+            }
             return fn();
         });
         return;
     }
-    g.it(...(args as [string, (this: MochaThis) => unknown]));
+    g.it(...args);
 };
