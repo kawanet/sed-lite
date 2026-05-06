@@ -1,7 +1,7 @@
 {
   "name": "sed-lite",
   "description": "`sed` compiler for JavaScript",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bugs": {
     "url": "https://github.com/kawanet/sed-lite/issues"
@@ -12,14 +12,14 @@
   "devDependencies": {
     "@rollup/plugin-alias": "^6.0.0",
     "@rollup/plugin-commonjs": "^29.0.2",
-    "@rollup/plugin-multi-entry": "^7.0.0",
-    "@rollup/plugin-node-resolve": "^16.0.2",
-    "@rollup/plugin-sucrase": "^5.0.2",
+    "@rollup/plugin-multi-entry": "^7.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-sucrase": "^5.1.0",
     "@rollup/plugin-terser": "^1.0.0",
     "@types/node": "^24.0.0",
     "mocha": "^11.7.5",
-    "rollup": "^4.52.4",
-    "terser": "^5.44.0",
+    "rollup": "^4.60.3",
+    "terser": "^5.46.2",
     "typescript": "^5.9.3"
   },
   "devEngines": {
