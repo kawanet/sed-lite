@@ -39,10 +39,25 @@ NAMED_EXPORTS := sed
 
 ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(PKG_DST) $(TEST_DST)
 
+# Build/test paths require Node's native TypeScript type-strip (default on
+# Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
+# still verify pre-built bundles via `make smoke`.
+BUILDABLE := $(shell node -e 'console.log(process.features.typescript ? "YES" : "NO")')
+
 ####
 
 # Build all artifacts.
-all: $(ALL)
+all: is-buildable $(ALL)
+
+# Gate that fails loudly when type-strip is unavailable; consumed by `all`
+# and by `npm prepack` to refuse packaging on a non-buildable runtime.
+is-buildable:
+	@ [ "$(BUILDABLE)" = "YES" ]
+
+# Inverse gate used by `npm prepare` to short-circuit on a non-buildable
+# runtime so consumer install on Node 20 silently skips build/test.
+is-not-buildable:
+	@ [ "$(BUILDABLE)" = "NO" ]
 
 $(MJS_DST): $(MJS_CONFIG) $(SRC) $(BUILDER_SRC)
 	@mkdir -p $(dir $@)
@@ -99,11 +114,11 @@ $(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(M
 smoke: smoke-mjs smoke-cjs smoke-minjs
 
 # MJS smoke test via public entrypoint.
-smoke-mjs: all
+smoke-mjs: $(MJS_DST)
 	cd .. && node --input-type=module -e 'const m = await import("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing MJS export:", k); process.exit(1); } console.log("MJS export OK:", k); }' $(NAMED_EXPORTS)
 
 # CJS smoke test via public entrypoint.
-smoke-cjs: all
+smoke-cjs: $(CJS_DST)
 	cd .. && node --input-type=commonjs -e 'const m = require("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing CJS export:", k); process.exit(1); } console.log("CJS export OK:", k); }' $(NAMED_EXPORTS)
 
 # Minified browser bundle smoke covers two consumer paths:
@@ -129,9 +144,8 @@ smoke-minjs: $(MINJS_DST) $(PKG_DST)
 
 # Build, run smoke tests, and conditionally run full tests (tsc and node:test).
 test: all smoke $(TYPES)
-	@node -v | grep -qv "^v20" || echo "Node 20 detected: skipping full tests."
 	@ [ "$$npm_command" != "install" ] || echo "npm install detected: skipping full tests."
-	@node -v | grep -q "^v20" || [ "$$npm_command" = "install" ] || $(MAKE) test-ts
+	@ [ "$$npm_command" = "install" ] || $(MAKE) test-ts test-shim
 
 test-ts:
 	../node_modules/.bin/tsc --noEmit
