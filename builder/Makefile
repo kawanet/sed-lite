@@ -140,4 +140,4 @@ test-ts:
 clean:
 	/bin/rm -fr $(ALL)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-ts
+.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-ts is-buildable is-not-buildable
