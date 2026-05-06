@@ -1,15 +1,14 @@
 // Browser-side resolution target for `node:test`. Aliased into the
 // test bundle by the rollup test config. Re-exports mocha BDD
 // globals (`describe`, `before`, `after`) that mocha installs on
-// `globalThis` after `mocha.setup('bdd')` runs in tests.html. `it`
-// is wrapped to bridge node:test's `it(name, options, fn)` form to
-// mocha's 2-arg `it(name, fn)`, applying `options.timeout` via
-// mocha's `this.timeout(ms)`.
+// `globalThis` after `mocha.setup` runs in tests.html. `it` is
+// special-cased only when called as `it(name, {timeout: ms}, fn)`
+// to bridge node:test's options-form to mocha's `this.timeout(ms)`.
 
 type Body = () => unknown;
 type Suite = () => void;
 type Options = {timeout?: number};
-type MochaThis = {timeout?: (ms: number) => void};
+type MochaThis = {timeout: (ms: number) => void};
 
 const g = globalThis as unknown as {
     describe: (name: string, fn: Suite) => void;
@@ -20,14 +19,14 @@ const g = globalThis as unknown as {
 
 export const {describe, before, after} = g;
 
-export const it = (name: string, ...rest: [Body] | [Options, Body]): void => {
-    if (rest.length === 1) {
-        g.it(name, rest[0]);
-    } else {
-        const [opts, fn] = rest;
+export const it = (...args: [string, Body] | [string, Options, Body]): void => {
+    if (args.length === 3 && typeof args[1].timeout === "number") {
+        const [name, opts, fn] = args;
         g.it(name, function (this: MochaThis) {
-            if (opts.timeout && typeof this.timeout === "function") this.timeout(opts.timeout);
+            this.timeout(opts.timeout!);
             return fn();
         });
+        return;
     }
+    g.it(...(args as [string, (this: MochaThis) => unknown]));
 };
