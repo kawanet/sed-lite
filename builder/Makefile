@@ -19,22 +19,21 @@ CJS_CONFIG   := ./rollup-cjs.config.ts
 MINJS_CONFIG := ./rollup-minjs.config.ts
 TEST_CONFIG  := ./rollup-test.config.ts
 
+# Documented named exports that must be verified in every bundle.
+NAMED_EXPORTS := sed
+
 # Bundle is small: this package is a single source file with no production
-# dependencies. Node builtins are external for cjs/mjs; the browser bundle
-# inlines everything (which here is just the source). Anything noticeably
-# larger means an accidental bundling of a Node built-in or a transitive
-# dep — fail the build so it cannot slip in.
+# dependencies and uses no Node builtins. Anything noticeably larger means
+# an accidental bundling of a transitive dep — fail the build so it cannot
+# slip in.
 MAX_BYTES := 5000
 
 # Cap for the browser test bundle, which inlines the test sources
 # plus the node:test / node:assert shims. The package source itself
 # is externalized through browser/import.js so it does not count.
-TEST_MAX_BYTES := 50000
+TEST_MAX_BYTES := 30000
 
-# Documented named exports that must be verified in every bundle.
-NAMED_EXPORTS := sed
-
-ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(PKG_DST) $(TEST_DST)
+ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(TEST_DST)
 
 # Build/test paths require Node's native TypeScript type-strip (default on
 # Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
@@ -59,43 +58,39 @@ is-not-buildable:
 $(MJS_DST): $(MJS_CONFIG) $(SRC) $(BUILDER_SRC)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
-	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@ls -l $@
+	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
 
 $(CJS_DST): $(CJS_CONFIG) $(SRC) $(BUILDER_SRC)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
-	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@ls -l $@
+	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
 
-$(MINJS_DST): $(MINJS_CONFIG) $(SRC) $(BUILDER_SRC)
+$(MINJS_DST): $(MINJS_CONFIG) $(SRC) $(BUILDER_SRC) $(PKG_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
-	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@ls -l $@
+	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
 
-# Mark dist/ as CommonJS so the IIFE .min.js is not parsed as ESM
-# when require()-d from a parent project that sets "type": "module".
-# .cjs / .mjs siblings have unambiguous extensions and are unaffected.
 $(PKG_DST):
 	@mkdir -p $(dir $@)
 	echo '{"type":"commonjs"}' > $@
 	@ls -l $@
 	@echo ""
 
-# Browser test bundle. Inlines test sources + node:test/assert shims;
-# the package itself resolves to browser/import.js, a CJS bridge to
-# the IIFE global set by $(MINJS_DST) at runtime. browser/tests.html
-# side-loads $(MINJS_DST) first — hence the dep below.
+# Browser test bundle loaded by browser/tests.html
 $(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
-	@test "$$(wc -c < $@)" -le $(TEST_MAX_BYTES) || { echo "ERROR: $@ exceeds $(TEST_MAX_BYTES) byte cap" >&2; exit 1; }
 	@ls -l $@
+	@test "$$(wc -c < $@)" -le $(TEST_MAX_BYTES) || { echo "ERROR: $@ exceeds $(TEST_MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
+
+####
 
 # Verify the bundles by importing/requiring the package itself.
 # This ensures the public entrypoints (exports/main) are correctly configured.
@@ -123,6 +118,7 @@ smoke-minjs: $(MINJS_DST) $(PKG_DST)
 ####
 
 # Build, run smoke tests, and conditionally run full tests (tsc and node:test).
+# Consumer `npm install` skips the heavy test-ts step to keep install fast.
 test: all smoke $(TYPES)
 	@ [ "$$npm_command" != "install" ] || echo "npm install detected: skipping full tests."
 	@ [ "$$npm_command" = "install" ] || $(MAKE) test-ts
@@ -130,6 +126,8 @@ test: all smoke $(TYPES)
 test-ts:
 	../node_modules/.bin/tsc --noEmit
 	cd .. && node --test test/*.test.ts
+
+####
 
 clean:
 	/bin/rm -fr $(ALL)
