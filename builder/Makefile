@@ -112,10 +112,10 @@ smoke-cjs: $(CJS_DST)
 	cd .. && node --input-type=commonjs -e 'const m = require("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing CJS export:", k); process.exit(1); } console.log("CJS export OK:", k); }' $(NAMED_EXPORTS)
 
 # Smoke the .min.js in two consumer shapes:
-#  (1) browser IIFE: pipe bundle + verification tail into `node -`,
-#      look up each named export via eval (slice(2) since stdin is the script).
-#  (2) CJS require(): exercises the dist/package.json type=commonjs
-#      override that keeps .js from being interpreted as ESM.
+#  (1) browser IIFE: verify the named exports are exposed as globals
+#      after the bundle is evaluated in a script context.
+#  (2) CJS require(): verify the same .min.js is also usable as a
+#      CommonJS module (the bundle is intentionally dual-use).
 smoke-minjs: $(MINJS_DST) $(PKG_DST)
 	(cat $< && echo '; for (const k of process.argv.slice(2)) { if (typeof eval(k) !== "function") { console.error("missing browser export:", k); process.exit(1); } console.log("browser export OK:", k); }') | node - $(NAMED_EXPORTS)
 	cd .. && node --input-type=commonjs -e 'const m = require("./dist/sed-lite.min.js"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing minjs CJS export:", k); process.exit(1); } console.log("minjs CJS export OK:", k); }' $(NAMED_EXPORTS)
