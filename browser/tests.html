@@ -4,16 +4,18 @@
     <meta charset="utf-8"/>
     <title>sed-lite browser test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css"/>
     <style>
         body { font-family: system-ui, sans-serif; padding: 1em; }
-        ul#results { list-style: none; padding: 0; margin: 0; }
-        ul#results li { font-family: monospace; padding: 2px 0; }
     </style>
 </head>
 <body>
 <h1>sed-lite browser test</h1>
-<ul id="results"></ul>
+<div id="mocha"></div>
+<script src="../node_modules/mocha/mocha.js"></script>
+<script>mocha.setup({ui: "bdd", timeout: 0});</script>
 <script src="../dist/sed-lite.min.js"></script>
 <script src="./tests/bundled.js"></script>
+<script>mocha.run();</script>
 </body>
 </html>
