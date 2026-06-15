@@ -2,7 +2,7 @@ import {strict as assert} from "node:assert"
 import {describe, it} from "node:test"
 import {sed} from "sed-lite"
 
-const TITLE = "error.test.ts"
+const TITLE = "empty.test.ts"
 
 describe(TITLE, () => {
     {
