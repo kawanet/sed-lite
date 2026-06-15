@@ -5,30 +5,30 @@
 // special-cased only when called as `it(name, {timeout: ms}, fn)`
 // to bridge node:test's options-form to mocha's `this.timeout(ms)`.
 
-type Body = () => unknown;
-type Suite = () => void;
-type Options = {timeout?: number};
-type MochaThis = {timeout: (ms: number) => void};
+type Body = () => unknown
+type Suite = () => void
+type Options = {timeout?: number}
+type MochaThis = {timeout: (ms: number) => void}
 
 const g = globalThis as unknown as {
-    describe: (name: string, fn: Suite) => void;
-    it: (name: string, fn: (this: MochaThis) => unknown) => void;
-    before: (fn: Body) => void;
-    after: (fn: Body) => void;
-};
+    describe: (name: string, fn: Suite) => void
+    it: (name: string, fn: (this: MochaThis) => unknown) => void
+    before: (fn: Body) => void
+    after: (fn: Body) => void
+}
 
-export const {describe, before, after} = g;
+export const {describe, before, after} = g
 
 export const it = (...args: [string, Body] | [string, Options, Body]): void => {
     if (args.length === 3) {
-        const [name, opts, fn] = args;
+        const [name, opts, fn] = args
         g.it(name, function (this: MochaThis) {
             if (opts && "number" === typeof opts.timeout) {
-                this.timeout(opts.timeout);
+                this.timeout(opts.timeout)
             }
-            return fn();
-        });
-        return;
+            return fn()
+        })
+        return
     }
-    g.it(...args);
-};
+    g.it(...args)
+}

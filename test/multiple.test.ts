@@ -1,40 +1,40 @@
-import {strict as assert} from "node:assert";
-import {describe, it} from "node:test";
-import {sed} from "sed-lite";
+import {strict as assert} from "node:assert"
+import {describe, it} from "node:test"
+import {sed} from "sed-lite"
 
-const TITLE = "multiple.test.ts";
+const TITLE = "multiple.test.ts"
 
 describe(TITLE, () => {
     it("leading space", () => {
-        const replacer = sed("\ts/foo/FOO/;\n");
-        assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]");
-    });
+        const replacer = sed("\ts/foo/FOO/;\n")
+        assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]")
+    })
 
     it("comment", () => {
-        const replacer = sed("s/foo/FOO/ # comment");
-        assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]");
-    });
+        const replacer = sed("s/foo/FOO/ # comment")
+        assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]")
+    })
 
     it("multiple sed", () => {
-        const def = `s/foo/bar/g;s/bar/buz/`;
-        const replacer = sed(def);
-        assert.equal(replacer("[foo][fooo]"), "[buz][baro]");
-    });
+        const def = `s/foo/bar/g;s/bar/buz/`
+        const replacer = sed(def)
+        assert.equal(replacer("[foo][fooo]"), "[buz][baro]")
+    })
 
     it("multiple semi-colons", () => {
-        const def = `s/foo/bar/g;;;;s/bar/buz/`;
-        const replacer = sed(def);
-        assert.equal(replacer("[foo][fooo]"), "[buz][baro]");
-    });
+        const def = `s/foo/bar/g;;;;s/bar/buz/`
+        const replacer = sed(def)
+        assert.equal(replacer("[foo][fooo]"), "[buz][baro]")
+    })
 
     it("multiple lines", () => {
         const def = `
 s/foo/bar/g;
 s/bar/buz/;
-`;
-        const replacer = sed(def);
-        assert.equal(replacer("[foo][fooo]"), "[buz][baro]");
-    });
+`
+        const replacer = sed(def)
+        assert.equal(replacer("[foo][fooo]"), "[buz][baro]")
+    })
 
     it("multiple lines with comments", () => {
         const def = `
@@ -44,8 +44,8 @@ s/bar/buz/;
     # comments 3
     s/bar/buz/;
     # comments 4
-`;
-        const replacer = sed(def);
-        assert.equal(replacer("[foo][fooo]"), "[buz][baro]");
-    });
-});
+`
+        const replacer = sed(def)
+        assert.equal(replacer("[foo][fooo]"), "[buz][baro]")
+    })
+})

@@ -18,4 +18,4 @@
 
 export {} // external module indicator
 
-export declare const sed: (def: string) => (str: string) => string;
+export declare const sed: (def: string) => (str: string) => string

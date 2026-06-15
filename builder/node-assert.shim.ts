@@ -7,7 +7,7 @@ export const strict = {
     // Truthy check. Mirrors `assert.ok(value, message?)` in node:assert.
     ok(value: unknown, message?: string): void {
         if (!value) {
-            throw new Error(message || `expected truthy, got ${JSON.stringify(value)}`);
+            throw new Error(message || `expected truthy, got ${JSON.stringify(value)}`)
         }
     },
 
@@ -16,7 +16,7 @@ export const strict = {
     // `equal(0, -0)` fails, both opposite of `===`.
     equal(actual: unknown, expected: unknown, message?: string): void {
         if (!Object.is(actual, expected)) {
-            throw new Error(message || `expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+            throw new Error(message || `expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`)
         }
     },
 
@@ -25,26 +25,26 @@ export const strict = {
     // value must be an instance of it. With no `expected` any throw
     // counts.
     throws(block: () => void, expected?: RegExp | (new (...args: unknown[]) => Error)): void {
-        let thrown: unknown;
-        let didThrow = false;
+        let thrown: unknown
+        let didThrow = false
         try {
-            block();
+            block()
         } catch (e) {
-            thrown = e;
-            didThrow = true;
+            thrown = e
+            didThrow = true
         }
         if (!didThrow) {
-            throw new Error("expected to throw, did not");
+            throw new Error("expected to throw, did not")
         }
         if (expected instanceof RegExp) {
-            const msg = thrown instanceof Error ? thrown.message : String(thrown);
+            const msg = thrown instanceof Error ? thrown.message : String(thrown)
             if (!expected.test(msg)) {
-                throw new Error(`thrown message ${JSON.stringify(msg)} did not match ${expected}`);
+                throw new Error(`thrown message ${JSON.stringify(msg)} did not match ${expected}`)
             }
         } else if (typeof expected === "function") {
             if (!(thrown instanceof expected)) {
-                throw new Error(`thrown is not an instance of ${expected.name}`);
+                throw new Error(`thrown is not an instance of ${expected.name}`)
             }
         }
     },
-};
+}
