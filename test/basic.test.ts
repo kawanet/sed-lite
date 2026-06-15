@@ -1,79 +1,79 @@
-import {strict as assert} from "node:assert";
-import {describe, it} from "node:test";
-import {sed} from "sed-lite";
+import {strict as assert} from "node:assert"
+import {describe, it} from "node:test"
+import {sed} from "sed-lite"
 
-const TITLE = "basic.test.ts";
+const TITLE = "basic.test.ts"
 
 describe(TITLE, () => {
     {
-        const def = "s/foo/FOO/";
+        const def = "s/foo/FOO/"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]")
+        })
     }
 
     {
-        const def = "s/foo/FOO/g";
+        const def = "s/foo/FOO/g"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo][fooo]"), "[FOO][FOOo]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo][fooo]"), "[FOO][FOOo]")
+        })
     }
 
     {
-        const def = "s/fo+/FO+/g";
+        const def = "s/fo+/FO+/g"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo][fooo]"), "[FO+][FO+]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo][fooo]"), "[FO+][FO+]")
+        })
     }
 
     {
-        const def = "s/f(o+)/{F$1}/g";
+        const def = "s/f(o+)/{F$1}/g"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo][fooo]"), "[{Foo}][{Fooo}]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo][fooo]"), "[{Foo}][{Fooo}]")
+        })
     }
 
     {
-        const def = "s/(f)(o+)/{$1:$2}/g";
+        const def = "s/(f)(o+)/{$1:$2}/g"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo][fooo]"), "[{f:oo}][{f:ooo}]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo][fooo]"), "[{f:oo}][{f:ooo}]")
+        })
     }
 
     {
-        const def = "s/fo+\\/(fo+)/{FOO=$1}/";
+        const def = "s/fo+\\/(fo+)/{FOO=$1}/"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]")
+        })
     }
 
     {
-        const def = "s#fo+/(fo+)#{FOO=$1}#";
+        const def = "s#fo+/(fo+)#{FOO=$1}#"
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]")
+        })
     }
 
     {
-        const def = "s/fo+//g"; // replace to empty
+        const def = "s/fo+//g" // replace to empty
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo][fooo]"), "[][]");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo][fooo]"), "[][]")
+        })
     }
 
     {
-        const def = "s//_/g"; // match empty (every character)
+        const def = "s//_/g" // match empty (every character)
         it(def, () => {
-            const replacer = sed(def);
-            assert.equal(replacer("[foo]"), "_[_f_o_o_]_");
-        });
+            const replacer = sed(def)
+            assert.equal(replacer("[foo]"), "_[_f_o_o_]_")
+        })
     }
-});
+})

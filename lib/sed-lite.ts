@@ -4,9 +4,9 @@
 // types through `package.json` `exports` — the same path an external
 // consumer would take. If the `exports.types` mapping ever breaks,
 // the build fails here.
-import type * as types from "sed-lite";
+import type * as types from "sed-lite"
 
-type Replacer = (str: string) => string;
+type Replacer = (str: string) => string
 
 /**
  * Compile a `sed`-style substitution definition into a JavaScript
@@ -21,48 +21,48 @@ type Replacer = (str: string) => string;
  */
 
 export const sed: typeof types.sed = str => {
-    let replacer: Replacer;
+    let replacer: Replacer
 
-    if ("string" !== typeof str) str = String(str);
+    if ("string" !== typeof str) str = String(str)
 
     // leading spaces and comments
-    str = str.replace(/^(\s+|;|#[^\r\n]*([\r\n]+|$))*/g, "");
+    str = str.replace(/^(\s+|;|#[^\r\n]*([\r\n]+|$))*/g, "")
 
     // empty
-    if (!str) return;
+    if (!str) return
 
-    const delim = str[1] || "/";
-    const delimRE = delim.replace(/([^\w\/#:])/, "\\$1");
-    const fieldRE = "((?:\\\\.|[^\\\\\\\\" + delimRE + "])*)"; // means /\\./ or /[^\\]/
-    const matchRE = "^s" + delimRE + fieldRE + delimRE + fieldRE + delimRE + "([^;#\\s]*)";
+    const delim = str[1] || "/"
+    const delimRE = delim.replace(/([^\w\/#:])/, "\\$1")
+    const fieldRE = "((?:\\\\.|[^\\\\\\\\" + delimRE + "])*)" // means /\\./ or /[^\\]/
+    const matchRE = "^s" + delimRE + fieldRE + delimRE + fieldRE + delimRE + "([^;#\\s]*)"
 
     str = str.replace(new RegExp(matchRE), (substring: string, $1: string, $2: string, $3: string) => {
-        const regexp = new RegExp($1, $3);
-        const replace = unescape($2);
-        replacer = str => str.replace(regexp, replace);
-        return "";
-    });
+        const regexp = new RegExp($1, $3)
+        const replace = unescape($2)
+        replacer = str => str.replace(regexp, replace)
+        return ""
+    })
 
     // invalid line
     if (!replacer) {
-        throw new SyntaxError("Invalid: " + str);
+        throw new SyntaxError("Invalid: " + str)
     }
 
     // trailing spaces and comments
-    str = str.replace(/^(\s+|#[^\r\n]*([\r\n]+|$))*/g, "");
+    str = str.replace(/^(\s+|#[^\r\n]*([\r\n]+|$))*/g, "")
 
     // combine next line
     if (str) {
         if (str[0] !== ";") {
-            throw new SyntaxError("Add ';' before: " + str);
+            throw new SyntaxError("Add ';' before: " + str)
         }
 
-        const next = sed(str);
-        if (next) replacer = JOIN(replacer, next);
+        const next = sed(str)
+        if (next) replacer = JOIN(replacer, next)
     }
 
     // done
-    return replacer;
+    return replacer
 }
 
 /**
@@ -70,14 +70,14 @@ export const sed: typeof types.sed = str => {
  */
 
 function JOIN(A: Replacer, B: Replacer): Replacer {
-    return str => B(A(str));
+    return str => B(A(str))
 }
 
-const esc = {b: "\b", f: "\f", n: "\n", r: "\r", t: "\t", v: "\v"} as any;
+const esc = {b: "\b", f: "\f", n: "\n", r: "\r", t: "\t", v: "\v"} as any
 
 function unescape(str: string) {
     return str.replace(/\\(x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|.)/g, (match, $1) => {
-        if (match.length > 2) return String.fromCharCode(parseInt(match.substr(2), 16));
-        return esc[$1] || $1;
-    });
+        if (match.length > 2) return String.fromCharCode(parseInt(match.substr(2), 16))
+        return esc[$1] || $1
+    })
 }
