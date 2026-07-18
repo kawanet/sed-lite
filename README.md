@@ -1,7 +1,7 @@
 # sed-lite
 
 [![npm](https://img.shields.io/npm/v/sed-lite.svg)](https://www.npmjs.com/package/sed-lite)
-[![Node.js CI](https://github.com/kawanet/sed-lite/actions/workflows/nodejs.yml/badge.svg?branch=master)](https://github.com/kawanet/sed-lite/actions/)
+[![Node.js CI](https://github.com/kawanet/sed-lite/actions/workflows/nodejs.yml/badge.svg?branch=main)](https://github.com/kawanet/sed-lite/actions/)
 [![gzip size](https://img.badgesize.io/https://cdn.jsdelivr.net/npm/sed-lite/dist/sed-lite.min.js?compression=gzip)](https://cdn.jsdelivr.net/npm/sed-lite/dist/sed-lite.min.js)
 
 Compile `sed`-style substitution definitions into JavaScript replacer functions.
@@ -25,7 +25,7 @@ buz("Hello, foo!"); // Hello, buz!
 ```
 
 See TypeScript declaration
-[sed-lite.d.ts](https://github.com/kawanet/sed-lite/blob/master/types/sed-lite.d.ts)
+[sed-lite.d.ts](https://github.com/kawanet/sed-lite/blob/main/types/sed-lite.d.ts)
 for more detail.
 
 ## SEE ALSO
