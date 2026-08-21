@@ -12,6 +12,7 @@
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "isolatedModules": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -27,6 +28,7 @@
     "target": "ES2022",
     "types": [
       "node"
-    ]
+    ],
+    "verbatimModuleSyntax": true
   }
 }
