@@ -13,11 +13,13 @@ CJS_DST   := ../dist/sed-lite.cjs
 MINJS_DST := ../dist/sed-lite.min.js
 PKG_DST   := ../dist/package.json
 TEST_DST  := ../browser/tests/bundled.js
+TESTS_DST := ../builder/tests/bundled.js
 
 MJS_CONFIG   := ./rollup-mjs.config.ts
 CJS_CONFIG   := ./rollup-cjs.config.ts
 MINJS_CONFIG := ./rollup-minjs.config.ts
 TEST_CONFIG  := ./rollup-test.config.ts
+TESTS_CONFIG := ./rollup-tests.config.ts
 
 # Documented named exports that must be verified in every bundle.
 NAMED_EXPORTS := sed
@@ -33,7 +35,7 @@ MAX_BYTES := 5000
 # is externalized through browser/import.js so it does not count.
 TEST_MAX_BYTES := 30000
 
-ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(TEST_DST)
+ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(TEST_DST) $(TESTS_DST)
 
 # Build/test paths require Node's native TypeScript type-strip (default on
 # Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
@@ -45,15 +47,15 @@ BUILDABLE := $(shell node -e 'console.log(process.features.typescript ? "YES" : 
 # Build all artifacts.
 all: is-buildable $(ALL)
 
-# Gate that fails loudly when type-strip is unavailable; consumed by `all`
-# and by `npm prepack` to refuse packaging on a non-buildable runtime.
+# Gate consumed by `all` and `npm prepack`: fail loudly unless type-strip
+# is available and this is not a NODE_ENV=production install.
 is-buildable:
-	@ [ "$(BUILDABLE)" = "YES" ]
+	@ [ "$(BUILDABLE)" = "YES" ] && [ "$(NODE_ENV)" != "production" ]
 
-# Inverse gate used by `npm prepare` to short-circuit on a non-buildable
-# runtime so consumer install on Node 20 silently skips build/test.
+# Inverse gate used by `npm prepare`: skip build/test without type-strip
+# or under NODE_ENV=production; build manually in those environments.
 is-not-buildable:
-	@ [ "$(BUILDABLE)" = "NO" ]
+	@ [ "$(BUILDABLE)" != "YES" ] || [ "$(NODE_ENV)" = "production" ]
 
 $(MJS_DST): $(MJS_CONFIG) $(SRC) $(BUILDER_SRC)
 	@mkdir -p $(dir $@)
@@ -84,6 +86,15 @@ $(PKG_DST):
 
 # Browser test bundle loaded by browser/tests.html
 $(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)
+	@mkdir -p $(dir $@)
+	../node_modules/.bin/rollup -c $<
+	@ls -l $@
+	@test "$$(wc -c < $@)" -le $(TEST_MAX_BYTES) || { echo "ERROR: $@ exceeds $(TEST_MAX_BYTES) byte cap" >&2; exit 1; }
+	@echo ""
+
+# Plain-JS bundle of the test suites, importing the package by name.
+# Runs against dist/ on any supported Node runtime without type-strip.
+$(TESTS_DST): $(TESTS_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(MJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
 	@ls -l $@
@@ -125,14 +136,19 @@ test:
 		*) $(MAKE) test-full ;; \
 	esac
 
-test-full: all smoke
+test-full: all
 	cd .. && node_modules/.bin/tsc --noEmit
 	cd .. && node_modules/.bin/ts-refine format --check && node_modules/.bin/ts-refine imports --check
 	cd .. && node --test test/*.test.ts
+
+# Run the bundled suites against dist/. CI uses this to cover runtimes
+# older than the build requirement, where the .ts sources cannot run.
+test-bundled: $(TESTS_DST) smoke
+	cd .. && REPEAT=$${REPEAT:-1} node --test builder/tests/bundled.js
 
 ####
 
 clean:
 	/bin/rm -fr $(ALL)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full is-buildable is-not-buildable
+.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full test-bundled is-buildable is-not-buildable

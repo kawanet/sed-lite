@@ -9,7 +9,7 @@
 ._*
 .idea/
 .vscode/
-build/
+builder/tests/
 dist/*
 !dist/sed-lite.min.js
 node_modules/
