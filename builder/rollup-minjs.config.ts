@@ -38,6 +38,7 @@ const rollupConfig: RollupOptions = {
         }),
 
         sucrase({
+            disableESTransforms: true,
             exclude: ["node_modules/**"],
             transforms: ["typescript"],
         }),

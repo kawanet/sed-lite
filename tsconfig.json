@@ -12,21 +12,26 @@
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
+    "isolatedModules": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "noImplicitAny": true,
     "noImplicitReturns": false,
     "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "removeComments": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "target": "ES2022",
     "types": [
       "node"
-    ]
+    ],
+    "verbatimModuleSyntax": true
   }
 }

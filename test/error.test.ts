@@ -8,7 +8,7 @@ describe(TITLE, () => {
     {
         const def = "s/\\(/{(}/"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[(]"), "[{(}]")
         })
     }

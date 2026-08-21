@@ -8,7 +8,7 @@ describe(TITLE, () => {
     {
         const def = "s/foo/FOO/"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo][fooo]"), "[FOO][fooo]")
         })
     }
@@ -16,7 +16,7 @@ describe(TITLE, () => {
     {
         const def = "s/foo/FOO/g"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo][fooo]"), "[FOO][FOOo]")
         })
     }
@@ -24,7 +24,7 @@ describe(TITLE, () => {
     {
         const def = "s/fo+/FO+/g"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo][fooo]"), "[FO+][FO+]")
         })
     }
@@ -32,7 +32,7 @@ describe(TITLE, () => {
     {
         const def = "s/f(o+)/{F$1}/g"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo][fooo]"), "[{Foo}][{Fooo}]")
         })
     }
@@ -40,7 +40,7 @@ describe(TITLE, () => {
     {
         const def = "s/(f)(o+)/{$1:$2}/g"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo][fooo]"), "[{f:oo}][{f:ooo}]")
         })
     }
@@ -48,7 +48,7 @@ describe(TITLE, () => {
     {
         const def = "s/fo+\\/(fo+)/{FOO=$1}/"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]")
         })
     }
@@ -56,7 +56,7 @@ describe(TITLE, () => {
     {
         const def = "s#fo+/(fo+)#{FOO=$1}#"
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo/fooo]"), "[{FOO=fooo}]")
         })
     }
@@ -64,7 +64,7 @@ describe(TITLE, () => {
     {
         const def = "s/fo+//g" // replace to empty
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo][fooo]"), "[][]")
         })
     }
@@ -72,7 +72,7 @@ describe(TITLE, () => {
     {
         const def = "s//_/g" // match empty (every character)
         it(def, () => {
-            const replacer = sed(def)
+            const replacer = sed(def)!
             assert.equal(replacer("[foo]"), "_[_f_o_o_]_")
         })
     }

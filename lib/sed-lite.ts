@@ -21,7 +21,9 @@ type Replacer = (str: string) => string
  */
 
 export const sed: typeof types.sed = str => {
-    let replacer: Replacer
+    // Assigned inside the replace callback below, which TypeScript cannot
+    // see, and left unset for empty input.
+    let replacer: Replacer | undefined
 
     if ("string" !== typeof str) str = String(str)
 
