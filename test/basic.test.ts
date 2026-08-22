@@ -1,6 +1,6 @@
 import {strict as assert} from "node:assert"
 import {describe, it} from "node:test"
-import {sed} from "sed-lite"
+import {sed} from "../lib/sed-lite.ts"
 
 const TITLE = "basic.test.ts"
 
