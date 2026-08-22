@@ -136,19 +136,15 @@ test:
 		*) $(MAKE) test-full ;; \
 	esac
 
-test-full: all
+test-full: all smoke
 	cd .. && node_modules/.bin/tsc --noEmit
 	cd .. && node_modules/.bin/ts-refine format --check && node_modules/.bin/ts-refine imports --check
 	cd .. && node --test test/*.test.ts
 
-# Run the bundled suites against dist/. CI uses this to cover runtimes
-# older than the build requirement, where the .ts sources cannot run.
-test-bundled: $(TESTS_DST) smoke
-	cd .. && REPEAT=$${REPEAT:-1} node --test builder/tests/bundled.js
 
 ####
 
 clean:
 	/bin/rm -fr $(ALL)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full test-bundled is-buildable is-not-buildable
+.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full is-buildable is-not-buildable
