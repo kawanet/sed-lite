@@ -32,7 +32,7 @@ MAX_BYTES := 5000
 # is externalized through browser/import.js so it does not count.
 TEST_MAX_BYTES := 30000
 
-ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(BROWSER_TEST_DST)
+ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST)
 
 # Build/test paths require Node's native TypeScript type-strip (default on
 # Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
@@ -119,6 +119,6 @@ test-full: all
 ####
 
 clean:
-	/bin/rm -fr $(ALL) $(BUILDER_TEST_DST) $(PKG_DST)
+	/bin/rm -fr $(ALL) $(BROWSER_TEST_DST) $(BUILDER_TEST_DST) $(PKG_DST)
 
 .PHONY: all clean test test-full is-buildable is-not-buildable
