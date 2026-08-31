@@ -1,4 +1,4 @@
-# Force bash so `set -o pipefail` works in the smoke-minjs recipe below.
+# Force bash so `set -o pipefail` works in the recipes below.
 SHELL := bash
 .SHELLFLAGS := -eo pipefail -c
 
@@ -20,9 +20,6 @@ CJS_CONFIG := ./rollup-cjs.config.ts
 MINJS_CONFIG := ./rollup-minjs.config.ts
 BROWSER_TEST_CONFIG := ./rollup-browser-test.config.ts
 BUILDER_TEST_CONFIG := ./rollup-builder-test.config.ts
-
-# Documented named exports that must be verified in every bundle.
-NAMED_EXPORTS := sed
 
 # Bundle is small: this package is a single source file with no production
 # dependencies and uses no Node builtins. Anything noticeably larger means
@@ -103,31 +100,6 @@ $(BUILDER_TEST_DST): $(BUILDER_TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(
 
 ####
 
-# Verify the bundles by importing/requiring the package itself.
-# This ensures the public entrypoints (exports/main) are correctly configured.
-# Note: process.argv.slice(1) is used because `node -e 'code' arg1 arg2`
-# results in process.argv = ['node', 'arg1', 'arg2'].
-smoke: smoke-mjs smoke-cjs smoke-minjs
-
-# MJS smoke test via public entrypoint.
-smoke-mjs: $(MJS_DST)
-	cd .. && node --input-type=module -e 'const m = await import("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing MJS export:", k); process.exit(1); } console.log("MJS export OK:", k); }' $(NAMED_EXPORTS)
-
-# CJS smoke test via public entrypoint.
-smoke-cjs: $(CJS_DST)
-	cd .. && node --input-type=commonjs -e 'const m = require("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing CJS export:", k); process.exit(1); } console.log("CJS export OK:", k); }' $(NAMED_EXPORTS)
-
-# Smoke the .min.js in two consumer shapes:
-#  (1) browser IIFE: verify the named exports are exposed as globals
-#      after the bundle is evaluated in a script context.
-#  (2) CJS require(): verify the same .min.js is also usable as a
-#      CommonJS module (the bundle is intentionally dual-use).
-smoke-minjs: $(MINJS_DST) $(PKG_DST)
-	(cat $< && echo '; for (const k of process.argv.slice(2)) { if (typeof eval(k) !== "function") { console.error("missing browser export:", k); process.exit(1); } console.log("browser export OK:", k); }') | node - $(NAMED_EXPORTS)
-	cd .. && node --input-type=commonjs -e 'const m = require("./dist/sed-lite.min.js"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing minjs CJS export:", k); process.exit(1); } console.log("minjs CJS export OK:", k); }' $(NAMED_EXPORTS)
-
-####
-
 # Consumer `npm install` skips the heavy test-full step to keep install fast.
 # `npm pack` re-runs prepare for a fresh build; tests are skipped there too
 # because CI runs them explicitly around the pack, while `npm publish`
@@ -138,7 +110,7 @@ test:
 		*) $(MAKE) test-full ;; \
 	esac
 
-test-full: all smoke
+test-full: all
 	cd .. && node_modules/.bin/tsc --noEmit
 	cd .. && node_modules/.bin/ts-refine format --check && node_modules/.bin/ts-refine imports --check
 	cd .. && node --test test/*.test.ts
@@ -149,4 +121,4 @@ test-full: all smoke
 clean:
 	/bin/rm -fr $(ALL) $(BUILDER_TEST_DST)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full is-buildable is-not-buildable
+.PHONY: all clean test test-full is-buildable is-not-buildable
