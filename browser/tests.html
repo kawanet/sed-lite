@@ -16,6 +16,6 @@
 <script>mocha.setup({ui: "bdd", timeout: 0});</script>
 <script src="../dist/sed-lite.min.js"></script>
 <script src="./tests/bundled.js"></script>
-<script>window.mochaDone = new Promise(resolve => mocha.run(resolve));</script>
+<script>const runner = mocha.run(() => (window.mochaStats = runner.stats));</script>
 </body>
 </html>

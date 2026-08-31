@@ -13,19 +13,20 @@ const run = async () => {
 
         await page.goto(pathToFileURL(html).href)
 
-        const failures = await page.evaluate(async () => await Promise.race([
-            window.mochaDone,
-            new Promise((_, reject) => setTimeout(
-                () => reject(new Error("Mocha did not finish within 60 seconds")),
-                60_000,
-            )),
-        ]))
+        // Completion is a state, not a promise: mocha.run() publishes its
+        // stats on window when done, and an unfinished or broken page just
+        // never does -- so this times out instead of passing.
+        await page.waitForFunction(() => window.mochaStats !== undefined, null, {timeout: 60_000})
+        const {tests, failures} = await page.evaluate(() => window.mochaStats)
 
         if (pageErrors.length) {
             throw new AggregateError(pageErrors, "Browser page errors occurred")
         }
         if (failures) {
             throw new Error(`Mocha reported ${failures} failed test(s)`)
+        }
+        if (!tests) {
+            throw new Error("Mocha ran no tests")
         }
     } finally {
         await browser.close()
