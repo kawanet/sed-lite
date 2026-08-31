@@ -1,4 +1,4 @@
-# Force bash so `set -o pipefail` works in the smoke-minjs recipe below.
+# Force bash so `set -o pipefail` works in the recipes below.
 SHELL := bash
 .SHELLFLAGS := -eo pipefail -c
 
@@ -8,21 +8,18 @@ BUILDER_SRC := $(wildcard ./*.ts)
 TEST_SRC := $(wildcard ../test/*.ts)
 BROWSER_SRC := $(wildcard ../browser/*.js)
 
-MJS_DST   := ../dist/sed-lite.mjs
-CJS_DST   := ../dist/sed-lite.cjs
+MJS_DST := ../dist/sed-lite.mjs
+CJS_DST := ../dist/sed-lite.cjs
 MINJS_DST := ../dist/sed-lite.min.js
-PKG_DST   := ../dist/package.json
-TEST_DST  := ../browser/tests/bundled.js
-TESTS_DST := ../builder/tests/bundled.js
+PKG_DST := ../dist/package.json
+BROWSER_TEST_DST := ../browser/tests/bundled.js
+BUILDER_TEST_DST := ./tests/bundled.mjs
 
-MJS_CONFIG   := ./rollup-mjs.config.ts
-CJS_CONFIG   := ./rollup-cjs.config.ts
+MJS_CONFIG := ./rollup-mjs.config.ts
+CJS_CONFIG := ./rollup-cjs.config.ts
 MINJS_CONFIG := ./rollup-minjs.config.ts
-TEST_CONFIG  := ./rollup-test.config.ts
-TESTS_CONFIG := ./rollup-tests.config.ts
-
-# Documented named exports that must be verified in every bundle.
-NAMED_EXPORTS := sed
+BROWSER_TEST_CONFIG := ./rollup-browser-test.config.ts
+BUILDER_TEST_CONFIG := ./rollup-builder-test.config.ts
 
 # Bundle is small: this package is a single source file with no production
 # dependencies and uses no Node builtins. Anything noticeably larger means
@@ -35,11 +32,11 @@ MAX_BYTES := 5000
 # is externalized through browser/import.js so it does not count.
 TEST_MAX_BYTES := 30000
 
-ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(TEST_DST) $(TESTS_DST)
+ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(BROWSER_TEST_DST)
 
 # Build/test paths require Node's native TypeScript type-strip (default on
 # Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
-# still verify pre-built bundles via `make smoke`.
+# still verify pre-built bundles via the builder/pack targets.
 BUILDABLE := $(shell node -e 'console.log(process.features.typescript ? "YES" : "NO")')
 
 ####
@@ -85,7 +82,7 @@ $(PKG_DST):
 	@echo ""
 
 # Browser test bundle loaded by browser/tests.html
-$(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)
+$(BROWSER_TEST_DST): $(BROWSER_TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(MINJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
 	@ls -l $@
@@ -94,7 +91,7 @@ $(TEST_DST): $(TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(BROWSER_SRC) $(M
 
 # Plain-JS bundle of the test suites, importing the package by name.
 # Runs against dist/ on any supported Node runtime without type-strip.
-$(TESTS_DST): $(TESTS_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(MJS_DST)
+$(BUILDER_TEST_DST): $(BUILDER_TEST_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(MJS_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
 	@ls -l $@
@@ -103,40 +100,17 @@ $(TESTS_DST): $(TESTS_CONFIG) $(SRC) $(BUILDER_SRC) $(TEST_SRC) $(MJS_DST)
 
 ####
 
-# Verify the bundles by importing/requiring the package itself.
-# This ensures the public entrypoints (exports/main) are correctly configured.
-# Note: process.argv.slice(1) is used because `node -e 'code' arg1 arg2`
-# results in process.argv = ['node', 'arg1', 'arg2'].
-smoke: smoke-mjs smoke-cjs smoke-minjs
-
-# MJS smoke test via public entrypoint.
-smoke-mjs: $(MJS_DST)
-	cd .. && node --input-type=module -e 'const m = await import("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing MJS export:", k); process.exit(1); } console.log("MJS export OK:", k); }' $(NAMED_EXPORTS)
-
-# CJS smoke test via public entrypoint.
-smoke-cjs: $(CJS_DST)
-	cd .. && node --input-type=commonjs -e 'const m = require("sed-lite"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing CJS export:", k); process.exit(1); } console.log("CJS export OK:", k); }' $(NAMED_EXPORTS)
-
-# Smoke the .min.js in two consumer shapes:
-#  (1) browser IIFE: verify the named exports are exposed as globals
-#      after the bundle is evaluated in a script context.
-#  (2) CJS require(): verify the same .min.js is also usable as a
-#      CommonJS module (the bundle is intentionally dual-use).
-smoke-minjs: $(MINJS_DST) $(PKG_DST)
-	(cat $< && echo '; for (const k of process.argv.slice(2)) { if (typeof eval(k) !== "function") { console.error("missing browser export:", k); process.exit(1); } console.log("browser export OK:", k); }') | node - $(NAMED_EXPORTS)
-	cd .. && node --input-type=commonjs -e 'const m = require("./dist/sed-lite.min.js"); for (const k of process.argv.slice(1)) { if (typeof m[k] !== "function") { console.error("missing minjs CJS export:", k); process.exit(1); } console.log("minjs CJS export OK:", k); }' $(NAMED_EXPORTS)
-
-####
-
-# Consumer `npm install` and `npm ci` skip the heavy test-full step.
-# CI re-runs `npm test` explicitly so the validation appears in logs.
+# Consumer `npm install` skips the heavy test-full step to keep install fast.
+# `npm pack` re-runs prepare for a fresh build; tests are skipped there too
+# because CI runs them explicitly around the pack, while `npm publish`
+# reports npm_command=publish and still gets the full run.
 test:
 	@case "$$npm_command" in \
-		install|ci) echo "npm $$npm_command detected: skipping full tests." ;; \
+		install|ci|pack) echo "npm $$npm_command detected: skipping full tests." ;; \
 		*) $(MAKE) test-full ;; \
 	esac
 
-test-full: all smoke
+test-full: all
 	cd .. && node_modules/.bin/tsc --noEmit
 	cd .. && node_modules/.bin/ts-refine format --check && node_modules/.bin/ts-refine imports --check
 	cd .. && node --test test/*.test.ts
@@ -145,6 +119,6 @@ test-full: all smoke
 ####
 
 clean:
-	/bin/rm -fr $(ALL)
+	/bin/rm -fr $(ALL) $(BUILDER_TEST_DST) $(PKG_DST)
 
-.PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full is-buildable is-not-buildable
+.PHONY: all clean test test-full is-buildable is-not-buildable
