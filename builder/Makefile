@@ -13,7 +13,7 @@ CJS_DST := ../dist/sed-lite.cjs
 MINJS_DST := ../dist/sed-lite.min.js
 PKG_DST := ../dist/package.json
 BROWSER_TEST_DST := ../browser/tests/bundled.js
-BUILDER_TEST_DST := ../builder/tests/bundled.js
+BUILDER_TEST_DST := ./tests/bundled.mjs
 
 MJS_CONFIG := ./rollup-mjs.config.ts
 CJS_CONFIG := ./rollup-cjs.config.ts
