@@ -35,11 +35,11 @@ MAX_BYTES := 5000
 # is externalized through browser/import.js so it does not count.
 TEST_MAX_BYTES := 30000
 
-ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(BROWSER_TEST_DST) $(BUILDER_TEST_DST)
+ALL := $(MJS_DST) $(CJS_DST) $(MINJS_DST) $(BROWSER_TEST_DST)
 
 # Build/test paths require Node's native TypeScript type-strip (default on
 # Node 22.18+). Older runtimes (e.g. Node 20) report BUILDABLE=NO and can
-# still verify pre-built bundles via `make smoke`.
+# still verify pre-built bundles via the builder/pack targets.
 BUILDABLE := $(shell node -e 'console.log(process.features.typescript ? "YES" : "NO")')
 
 ####
@@ -128,11 +128,13 @@ smoke-minjs: $(MINJS_DST) $(PKG_DST)
 
 ####
 
-# Consumer `npm install` and `npm ci` skip the heavy test-full step.
-# CI re-runs `npm test` explicitly so the validation appears in logs.
+# Consumer `npm install` skips the heavy test-full step to keep install fast.
+# `npm pack` re-runs prepare for a fresh build; tests are skipped there too
+# because CI runs them explicitly around the pack, while `npm publish`
+# reports npm_command=publish and still gets the full run.
 test:
 	@case "$$npm_command" in \
-		install|ci) echo "npm $$npm_command detected: skipping full tests." ;; \
+		install|ci|pack) echo "npm $$npm_command detected: skipping full tests." ;; \
 		*) $(MAKE) test-full ;; \
 	esac
 
@@ -145,6 +147,6 @@ test-full: all smoke
 ####
 
 clean:
-	/bin/rm -fr $(ALL)
+	/bin/rm -fr $(ALL) $(BUILDER_TEST_DST)
 
 .PHONY: all clean test smoke smoke-mjs smoke-cjs smoke-minjs test-full is-buildable is-not-buildable
