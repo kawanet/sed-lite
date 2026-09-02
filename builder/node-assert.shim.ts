@@ -47,4 +47,15 @@ export const strict = {
             }
         }
     },
+
+    // Inverse of `throws` — surfaces the actual error to ease
+    // debugging instead of just reporting "did throw".
+    doesNotThrow(block: () => void, message?: string): void {
+        try {
+            block()
+        } catch (e) {
+            const detail = e instanceof Error ? e.message : String(e)
+            throw new Error(message ? `${message}: ${detail}` : `expected not to throw, got: ${detail}`)
+        }
+    },
 }
