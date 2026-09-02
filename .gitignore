@@ -9,12 +9,15 @@
 .Thumbs
 ._*
 .idea/
+.pnpm-debug.log*
 .vscode/
+browser/tests/
 builder/tests/
 dist/*
 !dist/sed-lite.min.js
 node_modules
+nohup.out
 npm-debug.log*
 package-lock.json
-package/
+pnpm-lock.yaml
 ~$*
