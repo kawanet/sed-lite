@@ -26,6 +26,7 @@ BUILDER_TEST_CONFIG := ./rollup-builder-test.config.ts
 # an accidental bundling of a transitive dep — fail the build so it cannot
 # slip in.
 MAX_BYTES := 5000
+MINJS_MAX_BYTES := 1000
 
 # Cap for the browser test bundle, which inlines the test sources
 # plus the node:test / node:assert shims. The package source itself
@@ -72,7 +73,7 @@ $(MINJS_DST): $(MINJS_CONFIG) $(SRC) $(BUILDER_SRC) $(PKG_DST)
 	@mkdir -p $(dir $@)
 	../node_modules/.bin/rollup -c $<
 	@ls -l $@
-	@test "$$(wc -c < $@)" -le $(MAX_BYTES) || { echo "ERROR: $@ exceeds $(MAX_BYTES) byte cap" >&2; exit 1; }
+	@test "$$(wc -c < $@)" -le $(MINJS_MAX_BYTES) || { echo "ERROR: $@ exceeds $(MINJS_MAX_BYTES) byte cap" >&2; exit 1; }
 	@echo ""
 
 $(PKG_DST):
@@ -114,7 +115,6 @@ test-full: all
 	cd .. && node_modules/.bin/tsc --noEmit
 	cd .. && node_modules/.bin/ts-refine format --check && node_modules/.bin/ts-refine imports --check
 	cd .. && node --test test/*.test.ts
-
 
 ####
 
