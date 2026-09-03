@@ -1,16 +1,13 @@
-// Browser-side resolution target for `node:test`. Aliased into the
-// test bundle by the rollup test config. Re-exports mocha BDD
-// globals (`describe`, `before`, `after`) that mocha installs on
-// `globalThis` after `mocha.setup` runs in tests.html. `it` is
-// special-cased only when called as `it(name, {timeout: ms}, fn)`
-// to bridge node:test's options-form to mocha's `this.timeout(ms)`.
-// `.skip` is attached so conditional patterns like
-// `(cond ? it : it.skip)(name, fn)` keep working in the browser.
+// Browser-side resolution target for `node:test`, aliased in by the rollup
+// test config. mocha installs its BDD globals on `globalThis` once
+// `mocha.setup` has run in tests.html.
 
 type Body = () => unknown
+type TestContext = {skip: () => void}
+type BodyTC = (t: TestContext) => unknown
 type Suite = () => void
 type Options = {timeout?: number}
-type MochaThis = {timeout: (ms: number) => void}
+type MochaThis = {timeout: (ms: number) => void, skip: () => void}
 
 type ItFn = (name: string, fn: (this: MochaThis) => unknown) => void
 
@@ -23,20 +20,20 @@ const g = globalThis as unknown as {
 
 export const {describe, before, after} = g
 
-type ItOverload = ((name: string, fn: Body) => void) & ((name: string, opts: Options, fn: Body) => void)
+type ItOverload = ((name: string, fn: BodyTC) => void) & ((name: string, opts: Options, fn: BodyTC) => void)
 
-const wrapIt = (itFn: ItFn): ItOverload => (...args: [string, Body] | [string, Options, Body]): void => {
-    if (args.length === 3) {
-        const [name, opts, fn] = args
-        itFn(name, function (this: MochaThis) {
-            if (opts && "number" === typeof opts.timeout) {
-                this.timeout(opts.timeout)
-            }
-            return fn()
-        })
-        return
-    }
-    itFn(...args)
+// The mocha callback takes no argument on purpose: mocha reads its arity
+// and would switch to the done-callback style, never finishing the test.
+const wrapIt = (itFn: ItFn): ItOverload => (...args: [string, BodyTC] | [string, Options, BodyTC]): void => {
+    const [name] = args
+    const opts = args.length === 3 ? args[1] : undefined
+    const fn = args.length === 3 ? args[2] : args[1]
+    itFn(name, function (this: MochaThis) {
+        if (opts && "number" === typeof opts.timeout) {
+            this.timeout(opts.timeout)
+        }
+        return fn({skip: () => this.skip()})
+    })
 }
 
 export const it = wrapIt(g.it) as ItOverload & {skip: ItOverload}
