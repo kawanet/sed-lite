@@ -10,6 +10,9 @@ NAMED_EXPORTS := sed
 # staged artifacts in place without installing anything.
 PKG_ROOT ?= node_modules/sed-lite
 
+# A target name in builder/, not a path from here.
+BUILDER_TEST_DST := ./tests/bundled.mjs
+
 # The workflows drive these steps in order:
 #   nodejs.yml   pack bundled unpack test
 #   publish.yml  bundled test-dist
@@ -25,7 +28,7 @@ pack: clean
 	mv *-*.*.*.tgz packed.tgz
 
 bundled:
-	$(MAKE) -C .. tests/bundled.mjs
+	$(MAKE) -C .. $(BUILDER_TEST_DST)
 
 unpack:
 	cd ../.. && npm install ./builder/pack/packed.tgz --no-audit --no-fund --no-save
