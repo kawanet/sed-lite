@@ -1,7 +1,7 @@
 {
   "name": "sed-lite",
   "description": "`sed` compiler for JavaScript",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": "Yusuke Kawasaki <u-suke@kawa.net>",
   "bugs": {
     "url": "https://github.com/kawanet/sed-lite/issues"
@@ -20,7 +20,7 @@
     "mocha": "^12.0.0",
     "rollup": "^4.63.1",
     "terser": "^5.51.2",
-    "ts-refine": "^0.6.1",
+    "ts-refine": "^0.6.2",
     "typescript": "^6.0.3"
   },
   "devEngines": {
