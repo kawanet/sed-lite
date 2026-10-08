@@ -13,7 +13,7 @@ const rollupConfig: RollupOptions = {
     input: "../test/*.test.ts",
 
     // Bare specifiers stay external; only relative paths are bundled.
-    external: /^[^.\/]+$/,
+    external: v => /^[^./]/.test(v) && (v !== "multi-entry.js"),
 
     output: {
         file: "./tests/bundled.mjs",
