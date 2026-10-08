@@ -2,7 +2,7 @@
 *.js
 *.mjs
 !browser/import.js
-!browser/tests.cli.mjs
+!browser/import.mjs
 *.tgz
 *~
 .DS_Store
